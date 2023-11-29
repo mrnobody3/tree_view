@@ -27,10 +27,6 @@ const TreeView: React.FC<ITreeView> = ({ data, onExtend }) => {
             </button>
           </div>
         )}
-
-        {node.expended ? (
-          <div style={{ marginLeft: '20px' }}>{renderTree(node.children)}</div>
-        ) : null}
       </div>
     ));
   };
