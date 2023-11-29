@@ -22,15 +22,18 @@ const TreeView: React.FC<ITreeView> = ({ data, onExtend }) => {
         {node.type === 'folder' && (
           <div>
             {node.name}
-            <button onClick={() => onExtend(node.id)}>
-              {node.children?.length ? '[+]' : '[-]'}
-            </button>
+            {node.children?.length && (
+              <button onClick={() => onExtend(node.id)}>
+                {node.expended ? '[-]' : '[+]'}
+              </button>
+            )}
           </div>
         )}
 
         {node.expended && node.children ? (
           <div style={{ marginLeft: '20px' }}>{renderTree(node.children)}</div>
         ) : null}
+        {node.type === 'file' && <span>{node.name}</span>}
       </div>
     ));
   };
