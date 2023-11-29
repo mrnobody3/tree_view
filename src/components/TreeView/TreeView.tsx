@@ -1,20 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { BranchType } from '@/types/apiTypes.ts';
+import filterData from '../../helpers/filterData.ts';
+import SearchInput from '../SearchInput/SearchInput.tsx';
+import { useState, useEffect, FC, ChangeEvent } from 'react';
+import { BranchType } from '../../types/apiTypes.ts';
 
 interface ITreeView {
   data: BranchType[];
   onExtend: (id: number) => void;
 }
-const TreeView: React.FC<ITreeView> = ({ data, onExtend }) => {
+const TreeView: FC<ITreeView> = ({ data, onExtend }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredData, setFilteredData] = useState<BranchType[]>(data);
 
   useEffect(() => {
-    const filtered = data.filter((item) =>
-      item.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filtered = filterData(data, searchTerm);
     setFilteredData(filtered);
   }, [searchTerm, data]);
+
+  const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  };
 
   const renderTree = (nodes: BranchType[]) => {
     return nodes.map((node) => (
@@ -23,9 +27,7 @@ const TreeView: React.FC<ITreeView> = ({ data, onExtend }) => {
           <div>
             {node.name}
             {node.children?.length && (
-              <button onClick={() => onExtend(node.id)}>
-                {node.expended ? '[-]' : '[+]'}
-              </button>
+              <button onClick={() => onExtend(node.id)}>{node.expended ? '[-]' : '[+]'}</button>
             )}
           </div>
         )}
@@ -38,18 +40,9 @@ const TreeView: React.FC<ITreeView> = ({ data, onExtend }) => {
     ));
   };
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
-  };
-
   return (
     <div>
-      <input
-        type="text"
-        placeholder="Search..."
-        value={searchTerm}
-        onChange={handleSearch}
-      />
+      <SearchInput handleSearch={handleSearch} searchTerm={searchTerm} />
       {renderTree(filteredData)}
     </div>
   );
