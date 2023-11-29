@@ -8,6 +8,7 @@ module.exports = {
         "plugin:@typescript-eslint/recommended",
         "plugin:react/recommended"
     ],
+    
     "overrides": [
         {
             
@@ -32,6 +33,13 @@ module.exports = {
         "@typescript-eslint",
         "react"
     ],
+    "settings" : {
+        "import/resolver": {
+            "typescript": {
+                "project": ['tsconfig.json']
+            }
+        }
+    },
     "rules": {
         'no-unused-vars': 'off',
         '@typescript-eslint/no-unused-vars': 'off',

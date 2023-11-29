@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BranchType } from '../../types/apiTypes.ts';
+import { BranchType } from '@/types/apiTypes.ts';
 
 interface ITreeView {
   data: BranchType[];
@@ -27,6 +27,10 @@ const TreeView: React.FC<ITreeView> = ({ data, onExtend }) => {
             </button>
           </div>
         )}
+
+        {node.expended && node.children ? (
+          <div style={{ marginLeft: '20px' }}>{renderTree(node.children)}</div>
+        ) : null}
       </div>
     ));
   };
