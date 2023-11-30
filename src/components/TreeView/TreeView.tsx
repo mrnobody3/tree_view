@@ -1,6 +1,6 @@
 import { ChangeEvent, useEffect, useState } from 'react';
 
-import { data } from '../../data/treeData.ts';
+import { data } from '../../data/data.json';
 import { deleteItemById, filterData, toggleExpended } from '../../helpers/';
 import { useDebounce } from '../../hooks';
 import { BranchType } from '../../types/apiTypes.ts';
@@ -71,7 +71,11 @@ const TreeView = () => {
   return (
     <div>
       <SearchInput handleSearch={handleChange} searchTerm={searchTerm} />
-      <div className="mt-4">{renderTree(filteredData)}</div>
+      <div className="mt-4">
+        {renderTree(filteredData).length === 0
+          ? 'Результатів не знайдено'
+          : renderTree(filteredData)}
+      </div>
     </div>
   );
 };
