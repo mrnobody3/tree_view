@@ -1,20 +1,30 @@
+import { data } from '../../data/treeData.ts';
+import deleteItemById from '../../helpers/deleteData.ts';
 import filterData from '../../helpers/filterData.ts';
+import toggleExpended from '../../helpers/toggleExpended.ts';
 import SearchInput from '../SearchInput/SearchInput.tsx';
-import { useState, useEffect, FC, ChangeEvent } from 'react';
+import { useState, useEffect, ChangeEvent } from 'react';
 import { BranchType } from '../../types/apiTypes.ts';
 
-interface ITreeView {
-  data: BranchType[];
-  onExtend: (id: number) => void;
-}
-const TreeView: FC<ITreeView> = ({ data, onExtend }) => {
+const TreeView = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredData, setFilteredData] = useState<BranchType[]>(data);
 
   useEffect(() => {
-    const filtered = filterData(data, searchTerm);
+    const filtered = filterData(filteredData, searchTerm);
     setFilteredData(filtered);
-  }, [searchTerm, data]);
+  }, [searchTerm]);
+
+  function onChangeExtend(id: number) {
+    setFilteredData((prevState) => {
+      return prevState.map((item) => toggleExpended(item, id));
+    });
+  }
+
+  const onDeleteById = (id: number) => {
+    const result = deleteItemById(id, filteredData);
+    setFilteredData(result);
+  };
 
   const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
@@ -22,20 +32,29 @@ const TreeView: FC<ITreeView> = ({ data, onExtend }) => {
 
   const renderTree = (nodes: BranchType[]) => {
     return nodes.map((node) => (
-      <div key={node.id}>
+      <div key={node.id} className="flex">
         {node.type === 'folder' && (
-          <div>
+          <div className="hover:bg-sky-300 text-gray-700">
             {node.name}
-            {node.children?.length && (
-              <button onClick={() => onExtend(node.id)}>{node.expended ? '[-]' : '[+]'}</button>
-            )}
+            {node.children?.length ? (
+              <button onClick={() => onChangeExtend(node.id)}>
+                {node.expended ? '[-]' : '[+]'}
+              </button>
+            ) : null}
           </div>
         )}
 
-        {node.expended && node.children ? (
+        {node.expended && node.children && node.type === 'folder' ? (
           <div style={{ marginLeft: '20px' }}>{renderTree(node.children)}</div>
         ) : null}
-        {node.type === 'file' && <span>{node.name}</span>}
+
+        {node.type === 'file' && <span className="hover:bg-sky-300">{node.name}</span>}
+
+        {node.permissions.includes('delete') && (
+          <button className="ml-2" onClick={() => onDeleteById(node.id)}>
+            X
+          </button>
+        )}
       </div>
     ));
   };
@@ -43,7 +62,7 @@ const TreeView: FC<ITreeView> = ({ data, onExtend }) => {
   return (
     <div>
       <SearchInput handleSearch={handleSearch} searchTerm={searchTerm} />
-      {renderTree(filteredData)}
+      <div className="mt-4">{renderTree(filteredData)}</div>
     </div>
   );
 };
