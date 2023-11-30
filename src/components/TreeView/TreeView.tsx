@@ -1,36 +1,36 @@
+import { ChangeEvent, useEffect, useState } from 'react';
+
 import { data } from '../../data/treeData.ts';
-import deleteItemById from '../../helpers/deleteData.ts';
-import filterData from '../../helpers/filterData.ts';
-import toggleExpended from '../../helpers/toggleExpended.ts';
-import SearchInput from '../SearchInput/SearchInput.tsx';
-import { useState, useEffect, ChangeEvent } from 'react';
+import { deleteItemById, filterData, toggleExpended } from '../../helpers/';
+import { useDebounce } from '../../hooks';
 import { BranchType } from '../../types/apiTypes.ts';
+import SearchInput from '../SearchInput/SearchInput.tsx';
 
 const TreeView = () => {
-  const [searchTerm, setSearchTerm] = useState('');
   const [treeDate, setTreeDate] = useState<BranchType[]>(data);
   const [filteredData, setFilteredData] = useState<BranchType[]>([]);
+  const [debouncedSearchTerm, searchTerm, setSearchTerm] = useDebounce('', 500);
 
   useEffect(() => {
-    const filtered = filterData(treeDate, searchTerm);
+    const filtered = filterData(treeDate, debouncedSearchTerm);
     setFilteredData(filtered);
-  }, [searchTerm, treeDate]);
+  }, [debouncedSearchTerm, treeDate]);
 
-  function onChangeExtend(id: number) {
+  const onChangeExtend = (id: number) => {
     setFilteredData((prevState) => {
       return prevState.map((item) => toggleExpended(item, id));
     });
-  }
+  };
 
   const onDeleteById = (id: number) => {
     const result = deleteItemById(id, filteredData);
     setTreeDate(result);
   };
 
-  const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const { value } = event.target;
+    setSearchTerm(value);
   };
-
   const renderTree = (nodes: BranchType[]) => {
     return nodes.map((node) => (
       <div key={node.id} className="flex">
@@ -42,6 +42,11 @@ const TreeView = () => {
                 {node.expended ? '[-]' : '[+]'}
               </button>
             ) : null}
+            {node.permissions.includes('delete') && (
+              <button className="ml-2" onClick={() => onDeleteById(node.id)}>
+                X
+              </button>
+            )}
           </div>
         )}
 
@@ -49,12 +54,15 @@ const TreeView = () => {
           <div style={{ marginLeft: '20px' }}>{renderTree(node.children)}</div>
         ) : null}
 
-        {node.type === 'file' && <span className="hover:bg-sky-300">{node.name}</span>}
-
-        {node.permissions.includes('delete') && (
-          <button className="ml-2" onClick={() => onDeleteById(node.id)}>
-            X
-          </button>
+        {node.type === 'file' && (
+          <span className="hover:bg-sky-300">
+            {node.name}
+            {node.permissions.includes('delete') && (
+              <button className="ml-2" onClick={() => onDeleteById(node.id)}>
+                X
+              </button>
+            )}
+          </span>
         )}
       </div>
     ));
@@ -62,7 +70,7 @@ const TreeView = () => {
 
   return (
     <div>
-      <SearchInput handleSearch={handleSearch} searchTerm={searchTerm} />
+      <SearchInput handleSearch={handleChange} searchTerm={searchTerm} />
       <div className="mt-4">{renderTree(filteredData)}</div>
     </div>
   );

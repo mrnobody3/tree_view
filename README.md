@@ -15,7 +15,7 @@ Make sure you have Node.js and npm installed on your machine. You can download t
 Clone the repository to your local machine:
 
 ```bash
-git clone https://github.com/your-username/your-vite-project.git
+git clone https://github.com/mrnobody3/tree_view.git
 ```
 
 Navigate to the project directory:

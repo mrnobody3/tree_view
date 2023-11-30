@@ -70,4 +70,34 @@ export const data: BranchType[] = [
     type: 'folder',
     permissions: ['read', 'write', 'delete'],
   },
+  {
+    id: 21,
+    name: 'Full folder1',
+    type: 'folder',
+    permissions: ['read', 'write', 'delete'],
+    children: [
+      {
+        id: 22,
+        name: 'Full folder2',
+        type: 'folder',
+        permissions: ['read', 'write', 'delete'],
+        children: [
+          {
+            id: 23,
+            name: 'Full folder3',
+            type: 'folder',
+            permissions: ['read', 'write', 'delete'],
+            children: [
+              {
+                id: 24,
+                name: 'Full folder4',
+                type: 'folder',
+                permissions: ['read', 'write', 'delete'],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
 ];
