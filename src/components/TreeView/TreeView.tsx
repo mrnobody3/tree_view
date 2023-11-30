@@ -7,7 +7,7 @@ import { BranchType } from '../../types/apiTypes.ts';
 import SearchInput from '../SearchInput/SearchInput.tsx';
 
 const TreeView = () => {
-  const [treeDate, setTreeDate] = useState<BranchType[]>(data);
+  const [treeDate, setTreeDate] = useState<BranchType[]>(data as BranchType[]);
   const [filteredData, setFilteredData] = useState<BranchType[]>([]);
   const [debouncedSearchTerm, searchTerm, setSearchTerm] = useDebounce('', 500);
 
