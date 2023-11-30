@@ -8,12 +8,13 @@ import { BranchType } from '../../types/apiTypes.ts';
 
 const TreeView = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [filteredData, setFilteredData] = useState<BranchType[]>(data);
+  const [treeDate, setTreeDate] = useState<BranchType[]>(data);
+  const [filteredData, setFilteredData] = useState<BranchType[]>([]);
 
   useEffect(() => {
-    const filtered = filterData(filteredData, searchTerm);
+    const filtered = filterData(treeDate, searchTerm);
     setFilteredData(filtered);
-  }, [searchTerm]);
+  }, [searchTerm, treeDate]);
 
   function onChangeExtend(id: number) {
     setFilteredData((prevState) => {
@@ -23,7 +24,7 @@ const TreeView = () => {
 
   const onDeleteById = (id: number) => {
     const result = deleteItemById(id, filteredData);
-    setFilteredData(result);
+    setTreeDate(result);
   };
 
   const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
