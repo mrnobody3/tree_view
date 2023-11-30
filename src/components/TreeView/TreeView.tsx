@@ -1,53 +1,68 @@
-import React, { useState, useEffect } from 'react';
-import { BranchType } from '@/types/apiTypes.ts';
+import { data } from '../../data/treeData.ts';
+import deleteItemById from '../../helpers/deleteData.ts';
+import filterData from '../../helpers/filterData.ts';
+import toggleExpended from '../../helpers/toggleExpended.ts';
+import SearchInput from '../SearchInput/SearchInput.tsx';
+import { useState, useEffect, ChangeEvent } from 'react';
+import { BranchType } from '../../types/apiTypes.ts';
 
-interface ITreeView {
-  data: BranchType[];
-  onExtend: (id: number) => void;
-}
-const TreeView: React.FC<ITreeView> = ({ data, onExtend }) => {
+const TreeView = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredData, setFilteredData] = useState<BranchType[]>(data);
 
   useEffect(() => {
-    const filtered = data.filter((item) =>
-      item.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filtered = filterData(filteredData, searchTerm);
     setFilteredData(filtered);
-  }, [searchTerm, data]);
+  }, [searchTerm]);
+
+  function onChangeExtend(id: number) {
+    setFilteredData((prevState) => {
+      return prevState.map((item) => toggleExpended(item, id));
+    });
+  }
+
+  const onDeleteById = (id: number) => {
+    const result = deleteItemById(id, filteredData);
+    setFilteredData(result);
+  };
+
+  const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  };
 
   const renderTree = (nodes: BranchType[]) => {
     return nodes.map((node) => (
-      <div key={node.id}>
+      <div key={node.id} className="flex">
         {node.type === 'folder' && (
-          <div>
+          <div className="hover:bg-sky-300 text-gray-700">
             {node.name}
-            <button onClick={() => onExtend(node.id)}>
-              {node.children?.length ? '[+]' : '[-]'}
-            </button>
+            {node.children?.length ? (
+              <button onClick={() => onChangeExtend(node.id)}>
+                {node.expended ? '[-]' : '[+]'}
+              </button>
+            ) : null}
           </div>
         )}
 
-        {node.expended && node.children ? (
+        {node.expended && node.children && node.type === 'folder' ? (
           <div style={{ marginLeft: '20px' }}>{renderTree(node.children)}</div>
         ) : null}
+
+        {node.type === 'file' && <span className="hover:bg-sky-300">{node.name}</span>}
+
+        {node.permissions.includes('delete') && (
+          <button className="ml-2" onClick={() => onDeleteById(node.id)}>
+            X
+          </button>
+        )}
       </div>
     ));
   };
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
-  };
-
   return (
     <div>
-      <input
-        type="text"
-        placeholder="Search..."
-        value={searchTerm}
-        onChange={handleSearch}
-      />
-      {renderTree(filteredData)}
+      <SearchInput handleSearch={handleSearch} searchTerm={searchTerm} />
+      <div className="mt-4">{renderTree(filteredData)}</div>
     </div>
   );
 };
